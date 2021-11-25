@@ -9,7 +9,7 @@ import time
 import board
 import displayio
 from adafruit_funhouse.peripherals import Peripherals
-from foamyguy_list_select import ListSelect
+from displayio_listselect import ListSelect
 
 
 PREV_UP_STATE = False
