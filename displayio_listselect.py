@@ -6,7 +6,8 @@
 `displayio_listselect`
 ================================================================================
 
-ListSelect widget for circuitpython displayio. Display a list of strings with a selection indicator allow user to move selection up and down.
+ListSelect widget for circuitpython displayio. Display a list of strings with a
+selection indicator allow user to move selection up and down.
 
 
 * Author(s): Tim Cocks
@@ -36,22 +37,32 @@ from displayio import Group
 
 class ListSelect(Group):
     def __init__(
-            self,
-            items=None,
-            font=terminalio.FONT,
-            x=0,
-            y=0,
-            color=0xffffff,
-            background_color=0x000000,
-            selected_index=0,
-            cursor_char=">",
-            *args,
-            **kwargs
+        self,
+        items=None,
+        font=terminalio.FONT,
+        x=0,
+        y=0,
+        color=0xFFFFFF,
+        background_color=0x000000,
+        selected_index=0,
+        visible_items_count=None,
+        cursor_char=">",
+        *args,
+        **kwargs
     ):
         super().__init__(x=x, y=y, scale=1)
-        self._label = Label(font, text="", color=color, background_color=background_color, **kwargs)
+        self._label = Label(
+            font, text="", color=color, background_color=background_color, **kwargs
+        )
         self._label.anchor_point = (0, 0)
         self._label.anchored_position = (0, 0)
+
+        if visible_items_count == 0:
+            raise ValueError(
+                "Must have at least 1 visible item. Or None for unrestricted"
+            )
+        self.visible_items_count = visible_items_count
+        self.visible_index = 0
 
         self.items = items
         self._selected_index = selected_index
@@ -63,7 +74,20 @@ class ListSelect(Group):
     def _refresh_label(self):
         """ Called any time that we need to update the displayed label. """
         _full_str = ""
-        for i, item in enumerate(self.items):
+        if self.visible_items_count:
+            loop_from = min(
+                self.visible_index, len(self.items) - self.visible_items_count
+            )
+            loop_to = min(
+                len(self.items), self.visible_index + self.visible_items_count
+            )
+        else:
+            loop_from = 0
+            loop_to = len(self.items)
+        # print(f"showing indexes {self.visible_index} - {loop_to}")
+        for i in range(loop_from, loop_to):
+            item = self.items[i]
+
             if i == self.selected_index:
                 _full_str += self.cursor_char
             else:
@@ -104,7 +128,9 @@ class ListSelect(Group):
         return self._label.bounding_box
 
     def resize(self, new_width, new_height):
-        raise NotImplementedError("Label does not support arbitrary sizing, so neither does ListSelect.")
+        raise NotImplementedError(
+            "Label does not support arbitrary sizing, so neither does ListSelect."
+        )
 
     @property
     def anchor_point(self):
@@ -129,6 +155,8 @@ class ListSelect(Group):
     @selected_index.setter
     def selected_index(self, new_index):
         self._selected_index = new_index
+        if self.visible_items_count:
+            self.visible_index = new_index
         self._refresh_label()
 
     @property

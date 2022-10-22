@@ -37,10 +37,7 @@ display.show(main_group)
 items = ["First", "Second", "Third", "Fourth"]
 
 # Create ListSelect object
-list_select = ListSelect(
-    scale=2,
-    items=items
-)
+list_select = ListSelect(scale=2, items=items)
 
 # add it to the group so it will show on the display
 main_group.append(list_select)

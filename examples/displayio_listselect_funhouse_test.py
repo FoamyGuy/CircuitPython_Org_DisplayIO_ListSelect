@@ -26,10 +26,7 @@ print(dir)
 
 items = ["First", "Second", "Third", "Fourth"]
 
-list_select = ListSelect(
-    scale=2,
-    items=items
-)
+list_select = ListSelect(scale=2, items=items)
 
 main_group.append(list_select)
 
